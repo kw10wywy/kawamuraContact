@@ -9,7 +9,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;600&family=Inter:wght@400;600&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg:#4b4a4a;        /* 名刺に合わせたグレイ基調 */
+    --bg:#4b4a4a;
     --fg:#ffffff;
     --muted:#d7d7d7;
     --stroke:#ffffff22;
@@ -36,11 +36,6 @@
     overflow:hidden;
     animation:fadeIn .6s ease both;
   }
-  .card::after{
-    content:""; position:absolute; inset:-40% -10% auto -10%;
-    height:60%; background:linear-gradient(120deg, #ffffff10, transparent 55%);
-    transform:translateY(-20%) rotate(-6deg); pointer-events:none;
-  }
   header{display:flex; align-items:center; gap:14px; margin-bottom:10px}
   .logo{
     width:56px; height:56px; border-radius:50%;
@@ -56,7 +51,6 @@
   @media (max-width:640px){ .grid{grid-template-columns:1fr} .sub{margin-left:0} }
 
   .btn{
-    --ring:transparent;
     display:flex; align-items:center; gap:12px;
     padding:16px; border-radius:16px;
     background:var(--panel); border:1px solid var(--stroke);
@@ -68,12 +62,27 @@
   .ic{width:28px; height:28px; flex:0 0 28px; opacity:.95}
   .txt{display:flex; flex-direction:column; gap:2px}
   .lbl{font-size:13px; color:var(--muted); letter-spacing:.02em}
-  .val{font-size:16px; font-weight:600; line-height:1.2}
+  .val{
+    font-weight:600; line-height:1.2;
+    white-space:nowrap;
+    font-size:clamp(13px,2vw,16px);
+  }
+  .btn.mail .val{ font-size:clamp(12px,1.4vw,15px); }
   footer{margin-top:16px; display:flex; gap:10px; flex-wrap:wrap; align-items:center}
   .mini{font-size:13px; color:var(--muted)}
   .mini a{color:var(--muted)}
-  .copied{font-size:12px; color:#bfe3ff; margin-left:6px; opacity:0; transition:.25s}
-  .copied.show{opacity:1}
+
+  /* トースト表示 */
+  .toast{
+    position:fixed; left:50%; bottom:22px;
+    transform:translateX(-50%) translateY(10px);
+    background:rgba(20,20,20,.85); color:#fff;
+    padding:10px 14px; border-radius:12px;
+    box-shadow:0 8px 24px rgba(0,0,0,.35);
+    font-size:13px; letter-spacing:.02em;
+    opacity:0; pointer-events:none; transition:.25s ease;
+  }
+  .toast.show{opacity:1; transform:translateX(-50%) translateY(0)}
 
   @keyframes fadeIn{from{opacity:0; transform:translateY(6px)} to{opacity:1; transform:none}}
   @keyframes float{0%,100%{transform:translateY(0)} 50%{transform:translateY(-4px)}}
@@ -107,7 +116,7 @@
         </a>
 
         <!-- Mail -->
-        <a class="btn" id="mailBtn" href="mailto:kw10kawamura@gmail.com">
+        <a class="btn mail" id="mailBtn" href="mailto:kw10kawamura@gmail.com">
           <svg class="ic" viewBox="0 0 24 24" fill="none" aria-hidden="true">
             <path d="M4 6h16a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2z" stroke="var(--accent)" stroke-width="1.6"/>
             <path d="M22 8l-9.2 6a2 2 0 0 1-2.2 0L1.5 8" stroke="var(--accent)" stroke-width="1.6" stroke-linecap="round"/>
@@ -140,6 +149,9 @@
     </div>
   </div>
 
+  <!-- トースト -->
+  <div id="toast" class="toast">コピーしました</div>
+
 <script>
   // 時間帯の挨拶
   (function(){
@@ -152,24 +164,38 @@
   // PC閲覧時は「クリックでコピー」に振る舞い変更（TEL/MAIL）
   (function(){
     const isMobile = /iPhone|Android.+Mobile/.test(navigator.userAgent);
-    const copyMsg = document.getElementById('copyMsg');
-    function copy(text){
-      navigator.clipboard?.writeText(text).then(()=>{
-        copyMsg.classList.add('show');
-        setTimeout(()=>copyMsg.classList.remove('show'),1200);
-      });
+    const toast = document.getElementById('toast');
+
+    function showToast(msg){
+      toast.textContent = msg || 'コピーしました';
+      toast.classList.add('show');
+      setTimeout(()=>toast.classList.remove('show'),1200);
     }
+    async function copy(text){
+      try{
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          await navigator.clipboard.writeText(text);
+        } else {
+          const ta = document.createElement('textarea');
+          ta.value = text; document.body.appendChild(ta);
+          ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
+        }
+        showToast();
+      }catch(e){ console.warn('copy failed', e); }
+    }
+
     if(!isMobile){
       const phone = document.getElementById('phoneBtn');
       const mail  = document.getElementById('mailBtn');
+
       phone.removeAttribute('href');
       phone.style.cursor='copy';
       phone.addEventListener('click',()=>copy('080-6886-9892'));
+      phone.querySelector('.lbl').textContent = 'Phone（クリックでコピー）';
+
       mail.removeAttribute('href');
       mail.style.cursor='copy';
       mail.addEventListener('click',()=>copy('kw10kawamura@gmail.com'));
-      // ラベルを少し説明的に
-      phone.querySelector('.lbl').textContent = 'Phone（クリックでコピー）';
       mail.querySelector('.lbl').textContent  = 'Email（クリックでコピー）';
     }
   })();
