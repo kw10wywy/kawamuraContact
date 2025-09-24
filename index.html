@@ -25,7 +25,7 @@
       radial-gradient(70% 50% at 50% 0%, #5b5a5a 0%, var(--bg) 55%, #3f3e3e 100%);
     display:grid; place-items:center; padding:24px; overflow-x:hidden;
   }
-  .wrap{max-width:820px; width:100%}
+  .wrap{max-width:960px; width:100%}
   .card{
     position:relative;
     border:1px solid var(--stroke);
@@ -46,10 +46,10 @@
   }
   .logo img{width:92%; height:92%; object-fit:contain; border-radius:50%}
   .title{font-weight:600; font-size:18px; letter-spacing:.02em}
-  .sub{color:var(--muted); font-size:13px; margin:0 0 18px 70px}
-  .grid{display:grid; grid-template-columns:repeat(3,1fr); gap:14px}
+  .sub{color:var(--muted); font-size:13px; margin:0 0 18px 0}
+  .grid{display:grid; grid-template-columns: minmax(180px,1fr) minmax(200px,1.1fr) minmax(180px,1fr); gap:14px}
   @media (max-width:640px){ .grid{grid-template-columns:1fr} .sub{margin-left:0} }
-
+  
   .btn{
     display:flex; align-items:center; gap:12px;
     padding:16px; border-radius:16px;
@@ -60,14 +60,17 @@
   .btn:hover{background:var(--panel-h); transform:translateY(-1px)}
   .btn:focus-visible{outline:none; box-shadow:0 0 0 4px #ffffff44}
   .ic{width:28px; height:28px; flex:0 0 28px; opacity:.95}
-  .txt{display:flex; flex-direction:column; gap:2px}
-  .lbl{font-size:13px; color:var(--muted); letter-spacing:.02em}
+  .txt{display:flex; flex-direction:column; gap:2px; min-width: 0;}
+  .lbl{white-space: nowrap; line-height: 1.1;font-size: clamp(11px, 1.1vw, 13px);overflow:hidden; text-overflow:ellipsis; max-width:100%; display:block; }
   .val{
     font-weight:600; line-height:1.2;
     white-space:nowrap;
-    font-size:clamp(13px,2vw,16px);
+    font-size:clamp(12px,1.5vw,16px);
+    max-width:100%;
+    overflow:hidden;
+    text-overflow:ellipsis;
   }
-  .btn.mail .val{ font-size:clamp(12px,1.4vw,15px); }
+  .btn.mail .val{ font-size:clamp(11px,1.3vw,15px); }
   footer{margin-top:16px; display:flex; gap:10px; flex-wrap:wrap; align-items:center}
   .mini{font-size:13px; color:var(--muted)}
   .mini a{color:var(--muted)}
